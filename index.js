@@ -1,6 +1,6 @@
 function dinv(v) {
     let count = 0;
-    for (let i = 0; i < v.length - 1; i++) {
+    for (let i = 0; i < v?.length - 1; i++) {
         for (let j = i + 1; j < v.length; j++) {
             let diff = v[i] - v[j];
             if (diff == 0 || diff == 1) {
@@ -12,7 +12,7 @@ function dinv(v) {
 }
 
 function area(v) {
-    return v.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+    return v?.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 }
 
 function generateNext(vs) {
@@ -41,13 +41,62 @@ function grid(ctx, n) {
         ctx.moveTo(i * cellSize, 0);
         ctx.lineTo(i * cellSize, canvas.height);
         ctx.stroke();
-    }
-    for (let i = 0; i < n; i++) {
+
         ctx.beginPath();
         ctx.moveTo(0, i * cellSize);
         ctx.lineTo(canvas.width, i * cellSize);
         ctx.stroke();
     }
+}
+
+// draws one (1) dyck path
+function drawPath(ctx, gridSize, dyckVec, x, y) {
+
+    let inc = dyckVec?.length;
+    let j = 2 + (x * (2 + inc));
+    let i = 2 + (y * (2 + inc));
+
+    let cellSize = canvas.width / gridSize;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = `${cellSize}px serif`;
+
+    // draw x = y boundary
+    ctx.beginPath();
+    ctx.moveTo(j * cellSize, (i + inc) * cellSize);
+    ctx.lineTo((j + inc) * cellSize, i * cellSize);
+    // draw unique path
+    ctx.moveTo(j * cellSize, (i + inc) * cellSize);
+    ctx.lineTo(j * cellSize, (i + inc - 1) * cellSize);
+    let upCount = 1;
+    let rightCount = 0;
+    ctx.textBaseline = "alphabetic";
+    ctx.textAlign = "center";
+    ctx.fillText("0", (j-1) * cellSize, (i + inc) * cellSize);
+    for (let k = 1; k < dyckVec?.length; k++) {
+        if (dyckVec[k] <= dyckVec[k-1]) {
+            // go right, then find how many more times
+            rightCount += 1;
+            ctx.lineTo((j + rightCount) * cellSize, (i + inc - upCount) * cellSize);
+            let diff = dyckVec[k-1] - dyckVec[k];
+            for (let l = 0; l < diff; l++) {
+                // go right repeatedly
+                rightCount += 1;
+                ctx.lineTo((j + rightCount) * cellSize, (i + inc - upCount) * cellSize);
+            }
+        }
+        // go up
+        ctx.fillText(`${dyckVec[k]}`, (j-1) * cellSize, (i + inc - upCount) * cellSize);
+        upCount += 1;
+        ctx.lineTo((j + rightCount) * cellSize, (i + inc - upCount) * cellSize);
+    }
+    // complete the top by going right until hits the x = y boundary
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "start";
+    ctx.fillText(`q${dinv(dyckVec)} t${area(dyckVec)}`, j * cellSize, (i + inc - upCount - 1) * cellSize);
+    ctx.lineTo((j + inc) * cellSize, i * cellSize);
+    ctx.stroke();
 }
 
 function drawPaths(ctx, n, vsStart) {
@@ -57,6 +106,12 @@ function drawPaths(ctx, n, vsStart) {
     let cellSize = canvas.width / n;
     ctx.font = `${cellSize}px serif`;
     let vi = 0;
+
+    // new method:
+    // call drawPath() in a loop over all the dyck vectors
+    // maintain state between calls in order to keep track of remaining paths to draw
+    // use some kind of binary-esque search to find the location of the drawing based on given qt
+    // search based on sequence: convert sequence to qt and then use that to locate drawing
 
     //let vecTest = [[0]]
     //console.time("gen")
@@ -133,7 +188,23 @@ function draw() {
 
     clear(ctx);
     grid(ctx, gridSize);
-    drawPaths(ctx, gridSize, vsStart);
+    //drawPaths(ctx, gridSize, vsStart);
+    let vs = generateNext(vsStart);
+    for (let g = 0; g < 3; g++) {
+        vs = generateNext(vs);
+    }
+    let n = vs[0].length;
+    let maxPaths = ((gridSize / (2 + n)) | 0);
+    let vidx = 0;
+    for (let i = 0; i < maxPaths; i++) {
+        for (let j = 0; j < maxPaths; j++) {
+            drawPath(ctx, gridSize, vs[vidx], j, i);
+            if (vidx < vs.length) { vidx++ } else { break; }
+        }
+    }
+    // area of one dyck path (2 + n) * (2 + n)
+    console.log(maxPaths);
+    console.log(vidx);
 }
 
 draw();
