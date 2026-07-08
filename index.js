@@ -172,30 +172,15 @@ function drawPaths(ctx, n, vsStart) {
     }
 }
 
-function draw() {
+function draw(ctx, gridSize, vs, vidx) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerWidth;
-    var ctx = canvas.getContext("2d");
-
-    let vsStart = [
-        [0,1,2],
-        [0,1,1],
-        [0,0,1],
-        [0,1,0],
-        [0,0,0]
-    ];
-    let gridSize = 104;
 
     clear(ctx);
     grid(ctx, gridSize);
     //drawPaths(ctx, gridSize, vsStart);
-    let vs = generateNext(vsStart);
-    for (let g = 0; g < 3; g++) {
-        vs = generateNext(vs);
-    }
-    let n = vs[0].length;
+    let n = vs[0]?.length;
     let maxPaths = ((gridSize / (2 + n)) | 0);
-    let vidx = 0;
     for (let i = 0; i < maxPaths; i++) {
         for (let j = 0; j < maxPaths; j++) {
             drawPath(ctx, gridSize, vs[vidx], j, i);
@@ -203,8 +188,8 @@ function draw() {
         }
     }
     // area of one dyck path (2 + n) * (2 + n)
-    console.log(maxPaths);
-    console.log(vidx);
+    console.log(`most paths per page: ${maxPaths * maxPaths}`);
+    console.log(`paths drawn in total: ${vidx}`);
+    let maxPages = Math.ceil(vs.length / (maxPaths * maxPaths));
+    console.log(`pages needed: ${maxPages}`);
 }
-
-draw();
