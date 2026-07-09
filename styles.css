@@ -1,0 +1,15 @@
+.container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 10%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.main {
+    flex-grow: 1;
+}

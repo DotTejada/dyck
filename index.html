@@ -3,11 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Dyck Path Viewer</title>
+    <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="dyckfavicon.ico"?v=1>
 </head>
 <body style="background-color: #121212; color: white;">
-    <div id="container">
-        <canvas id="canvas"></canvas>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <p id="maxpaths"></p>
+            <p id="maxpages"></p>
+            <p id="curpage"></p>
+        </div>
+        <div class="main" id="main">
+            <canvas id="canvas"></canvas>
+        </div>
     </div>
     <script src="index.js"></script>
     <script src="page.js"></script>

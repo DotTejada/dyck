@@ -1,27 +1,27 @@
 let gridSize = 104;
+//let vsStart = [
+//    [0,1,2],
+//    [0,1,1],
+//    [0,0,1],
+//    [0,1,0],
+//    [0,0,0]
+//];
 let vsStart = [
-    [0,1,2],
-    [0,1,1],
-    [0,0,1],
-    [0,1,0],
-    [0,0,0]
+    [0],
 ];
 let vs = generateNext(vsStart);
-for (let g = 0; g < 3; g++) {
+for (let g = 0; g < 6; g++) {
     vs = generateNext(vs);
 }
 let n = vs[0]?.length;
 let maxPaths = ((gridSize / (2 + n)) | 0);
-
-function loadPage(curPage) {
-    const container = document.getElementById("container");
-    container.innerHTML = "<canvas id='canvas'></canvas>";
-    var ctx = canvas.getContext("2d");
-    draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
-}
+let maxPages = Math.ceil(vs.length / (maxPaths * maxPaths));
 
 let curPage = 0;
-let maxPages = Math.ceil(vs.length / (maxPaths * maxPaths));
+let g = document.getElementById("main");
+canvas.width = g.clientWidth;
+canvas.height = g.clientWidth;
+let ctx = canvas.getContext("2d");
 document.addEventListener('keydown', function(event) {
     if (event.key === "d") {
         if (curPage < maxPages - 1) {
@@ -32,7 +32,9 @@ document.addEventListener('keydown', function(event) {
             curPage -= 1;
         }
     }
-    loadPage(curPage);
+    draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
+    document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
 });
 
-loadPage(0);
+draw(ctx, gridSize, vs, 0);
+document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;

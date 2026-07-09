@@ -35,6 +35,8 @@ function clear(ctx) {
 }
 
 function grid(ctx, n) {
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#121212";
     let cellSize = canvas.width / n;
     for (let i = 0; i < n; i++) {
         ctx.beginPath();
@@ -173,8 +175,6 @@ function drawPaths(ctx, n, vsStart) {
 }
 
 function draw(ctx, gridSize, vs, vidx) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerWidth;
 
     clear(ctx);
     grid(ctx, gridSize);
@@ -188,8 +188,5 @@ function draw(ctx, gridSize, vs, vidx) {
         }
     }
     // area of one dyck path (2 + n) * (2 + n)
-    console.log(`most paths per page: ${maxPaths * maxPaths}`);
-    console.log(`paths drawn in total: ${vidx}`);
-    let maxPages = Math.ceil(vs.length / (maxPaths * maxPaths));
-    console.log(`pages needed: ${maxPages}`);
+    document.getElementById("maxpaths").textContent = `Most paths per page: ${maxPaths * maxPaths}`;
 }
