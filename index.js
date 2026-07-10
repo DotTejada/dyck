@@ -53,14 +53,15 @@ function grid(ctx, n) {
 
 // draws box around the dyck path at (x, y)
 function drawBox(ctx, cellSize, inc, x, y) {
-    //cellSize += 2;
-    x = (x * (2 + inc));
-    y = (y * (2 + inc));
+    ctx.strokeStyle = "#FF99FF";
+    inc += 2;
+    x = (x * inc);
+    y = (y * inc);
     ctx.beginPath();
     ctx.moveTo(x * cellSize, y * cellSize);
-    ctx.lineTo((x + inc + 2) * cellSize, y * cellSize);
-    ctx.lineTo((x + inc + 2) * cellSize, (y + inc + 2) * cellSize);
-    ctx.lineTo(x * cellSize, (y + inc + 2) * cellSize);
+    ctx.lineTo((x + inc) * cellSize, y * cellSize);
+    ctx.lineTo((x + inc) * cellSize, (y + inc) * cellSize);
+    ctx.lineTo(x * cellSize, (y + inc) * cellSize);
     ctx.lineTo(x * cellSize, y * cellSize);
     ctx.stroke();
 }
@@ -122,21 +123,6 @@ function drawPaths(ctx, n, vsStart) {
     let cellSize = canvas.width / n;
     ctx.font = `${cellSize}px serif`;
     let vi = 0;
-
-    // new method:
-    // call drawPath() in a loop over all the dyck vectors
-    // maintain state between calls in order to keep track of remaining paths to draw
-    // use some kind of binary-esque search to find the location of the drawing based on given qt
-    // search based on sequence: convert sequence to qt and then use that to locate drawing
-
-    //let vecTest = [[0]]
-    //console.time("gen")
-    //let vec = generateNext(vecTest)
-    //for (let g = 0; g < 13; g++) {
-    //    vec = generateNext(vec)
-    //}
-    //console.timeEnd("gen")
-    //console.log(vec)
 
     let vs = generateNext(vsStart);
     for (let g = 0; g < 2; g++) {
@@ -203,8 +189,6 @@ function arraysEqual(a, b) {
 function searchByTargetVec(needle, haystack) {
     let hStart = 0;
     let hEnd = haystack.length - 1;
-    let max = Math.log2(haystack.length) + 2;
-    let maxCounter = 0;
     while (hStart <= hEnd) {
         let searchIndex = Math.floor(hStart + (hEnd - hStart) / 2);
         let candidate = haystack[searchIndex];
@@ -220,10 +204,6 @@ function searchByTargetVec(needle, haystack) {
                 break;
             }
         }
-        maxCounter += 1;
-        if (maxCounter > max) {
-            return -1;
-        }
     }
     return -1;
 }
@@ -233,7 +213,7 @@ function draw(ctx, gridSize, vs, vidx) {
     clear(ctx);
     grid(ctx, gridSize);
     let n = vs[0]?.length;
-    let maxPaths = ((gridSize / (2 + n)) | 0);
+    let maxPaths = Math.floor(gridSize / (2 + n));
     for (let i = 0; i < maxPaths; i++) {
         for (let j = 0; j < maxPaths; j++) {
             drawPath(ctx, gridSize, vs[vidx], j, i);
@@ -242,7 +222,4 @@ function draw(ctx, gridSize, vs, vidx) {
     }
     // area of one dyck path (2 + n) * (2 + n)
     document.getElementById("maxpaths").textContent = `Most paths per page: ${maxPaths * maxPaths}`;
-    let nIndex = searchByTargetVec([0,1,2,2,3,4,0,1], vs);
-    console.log(nIndex);
-    console.log(vs[nIndex]);
 }

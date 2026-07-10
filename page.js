@@ -10,11 +10,11 @@ let vsStart = [
     [0],
 ];
 let vs = generateNext(vsStart);
-for (let g = 0; g < 6; g++) {
+for (let g = 0; g < 12; g++) {
     vs = generateNext(vs);
 }
 let n = vs[0]?.length;
-let maxPaths = ((gridSize / (2 + n)) | 0);
+let maxPaths = Math.floor(gridSize / (2 + n)) | 0;
 let maxPages = Math.ceil(vs.length / (maxPaths * maxPaths));
 
 let curPage = 0;
@@ -42,19 +42,16 @@ searchBtn.addEventListener("click", () => {
     const finalArray = rawInput.split(',').map(item => parseInt(item.trim(), 10));
     
     let sIndex = searchByTargetVec(finalArray, vs);
-    if (sIndex > 0) {
-        console.log(sIndex); 
-        console.log(maxPages); 
+    if (sIndex >= 0) {
         curPage = Math.floor(sIndex / (maxPaths * maxPaths));
         let nthPath = sIndex % (maxPaths * maxPaths);
         let nthPathRow = Math.floor(nthPath / maxPaths);
         let nthPathCol = nthPath % maxPaths;
-        console.log(curPage); 
         draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
-        console.log(nthPath); 
-        console.log(nthPathRow); 
-        console.log(nthPathCol); 
         drawBox(ctx, canvas.width / gridSize, n, nthPathCol, nthPathRow);
+        document.getElementById("found").textContent = `Target found! :D`;
+    } else {
+        document.getElementById("found").textContent = `Target not found... :P`;
     }
 });
 
