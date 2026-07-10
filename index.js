@@ -51,6 +51,20 @@ function grid(ctx, n) {
     }
 }
 
+// draws box around the dyck path at (x, y)
+function drawBox(ctx, cellSize, inc, x, y) {
+    //cellSize += 2;
+    x = (x * (2 + inc));
+    y = (y * (2 + inc));
+    ctx.beginPath();
+    ctx.moveTo(x * cellSize, y * cellSize);
+    ctx.lineTo((x + inc + 2) * cellSize, y * cellSize);
+    ctx.lineTo((x + inc + 2) * cellSize, (y + inc + 2) * cellSize);
+    ctx.lineTo(x * cellSize, (y + inc + 2) * cellSize);
+    ctx.lineTo(x * cellSize, y * cellSize);
+    ctx.stroke();
+}
+
 // draws one (1) dyck path
 function drawPath(ctx, gridSize, dyckVec, x, y) {
 
@@ -174,11 +188,50 @@ function drawPaths(ctx, n, vsStart) {
     }
 }
 
+function arraysEqual(a, b) {
+    if (a.length != b.length) {
+        return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] != b[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function searchByTargetVec(needle, haystack) {
+    let hStart = 0;
+    let hEnd = haystack.length - 1;
+    let max = Math.log2(haystack.length) + 2;
+    let maxCounter = 0;
+    while (hStart <= hEnd) {
+        let searchIndex = Math.floor(hStart + (hEnd - hStart) / 2);
+        let candidate = haystack[searchIndex];
+        if (arraysEqual(needle, candidate)) {
+            return searchIndex;
+        }
+        for (let i = 0; i < needle.length; i++) {
+            if (needle[i] > candidate[i]) {
+                hEnd = searchIndex - 1;
+                break;
+            } else if (needle[i] < candidate[i]) {
+                hStart = searchIndex + 1;
+                break;
+            }
+        }
+        maxCounter += 1;
+        if (maxCounter > max) {
+            return -1;
+        }
+    }
+    return -1;
+}
+
 function draw(ctx, gridSize, vs, vidx) {
 
     clear(ctx);
     grid(ctx, gridSize);
-    //drawPaths(ctx, gridSize, vsStart);
     let n = vs[0]?.length;
     let maxPaths = ((gridSize / (2 + n)) | 0);
     for (let i = 0; i < maxPaths; i++) {
@@ -189,4 +242,7 @@ function draw(ctx, gridSize, vs, vidx) {
     }
     // area of one dyck path (2 + n) * (2 + n)
     document.getElementById("maxpaths").textContent = `Most paths per page: ${maxPaths * maxPaths}`;
+    let nIndex = searchByTargetVec([0,1,2,2,3,4,0,1], vs);
+    console.log(nIndex);
+    console.log(vs[nIndex]);
 }

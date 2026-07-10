@@ -36,5 +36,27 @@ document.addEventListener('keydown', function(event) {
     document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
 });
 
+const searchBtn = document.getElementById("searchBtn");
+searchBtn.addEventListener("click", () => {
+    const rawInput = document.getElementById("searchInput").value;
+    const finalArray = rawInput.split(',').map(item => parseInt(item.trim(), 10));
+    
+    let sIndex = searchByTargetVec(finalArray, vs);
+    if (sIndex > 0) {
+        console.log(sIndex); 
+        console.log(maxPages); 
+        curPage = Math.floor(sIndex / (maxPaths * maxPaths));
+        let nthPath = sIndex % (maxPaths * maxPaths);
+        let nthPathRow = Math.floor(nthPath / maxPaths);
+        let nthPathCol = nthPath % maxPaths;
+        console.log(curPage); 
+        draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
+        console.log(nthPath); 
+        console.log(nthPathRow); 
+        console.log(nthPathCol); 
+        drawBox(ctx, canvas.width / gridSize, n, nthPathCol, nthPathRow);
+    }
+});
+
 draw(ctx, gridSize, vs, 0);
 document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
