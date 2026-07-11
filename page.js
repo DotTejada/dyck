@@ -36,22 +36,45 @@ document.addEventListener('keydown', function(event) {
     document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
 });
 
+const pageBtn = document.getElementById("pageBtn");
+pageBtn.addEventListener("click", () => {
+    const rawInput = document.getElementById("pageInput").value;
+    const targetPage = parseInt(rawInput.trim(), 10);
+    if (0 < targetPage && targetPage < maxPages) {
+        curPage = targetPage - 1;
+        draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
+        document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
+        document.getElementById("pageInfo").textContent = `Jumped to page ${targetPage}`;
+    } else {
+        document.getElementById("pageInfo").textContent = `Outside page bounds`;
+    }
+});
+
 const searchBtn = document.getElementById("searchBtn");
 searchBtn.addEventListener("click", () => {
     const rawInput = document.getElementById("searchInput").value;
     const finalArray = rawInput.split(',').map(item => parseInt(item.trim(), 10));
     
-    let sIndex = searchByTargetVec(finalArray, vs);
-    if (sIndex >= 0) {
-        curPage = Math.floor(sIndex / (maxPaths * maxPaths));
-        let nthPath = sIndex % (maxPaths * maxPaths);
-        let nthPathRow = Math.floor(nthPath / maxPaths);
-        let nthPathCol = nthPath % maxPaths;
-        draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
-        drawBox(ctx, canvas.width / gridSize, n, nthPathCol, nthPathRow);
-        document.getElementById("found").textContent = `Target found! :D`;
+    if (finalArray.length == n) {
+        let sIndex = searchByTargetVec(finalArray, vs);
+        if (sIndex >= 0) {
+            // find correct page and position
+            curPage = Math.floor(sIndex / (maxPaths * maxPaths));
+            let nthPath = sIndex % (maxPaths * maxPaths);
+            let nthPathRow = Math.floor(nthPath / maxPaths);
+            let nthPathCol = nthPath % maxPaths;
+
+            // change to correct page
+            draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
+            document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
+
+            drawBox(ctx, canvas.width / gridSize, n, nthPathCol, nthPathRow);
+            document.getElementById("found").textContent = `Sequence found! :D`;
+        } else {
+            document.getElementById("found").textContent = `Sequence not found... :P`;
+        }
     } else {
-        document.getElementById("found").textContent = `Target not found... :P`;
+        document.getElementById("found").textContent = `Sequence should have ${n} numbers`;
     }
 });
 
