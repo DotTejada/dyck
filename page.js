@@ -1,82 +1,93 @@
-let gridSize = 104;
-//let vsStart = [
-//    [0,1,2],
-//    [0,1,1],
-//    [0,0,1],
-//    [0,1,0],
-//    [0,0,0]
-//];
-let vsStart = [
-    [0],
-];
-let vs = generateNext(vsStart);
-for (let g = 0; g < 12; g++) {
-    vs = generateNext(vs);
-}
-let n = vs[0]?.length;
-let maxPaths = Math.floor(gridSize / (2 + n)) | 0;
-let maxPages = Math.ceil(vs.length / (maxPaths * maxPaths));
-
-let curPage = 0;
 let g = document.getElementById("main");
 canvas.width = g.clientWidth;
 canvas.height = g.clientWidth;
 let ctx = canvas.getContext("2d");
+
+let state = {
+    n: 10,
+    gridSize: 104,
+    vsStart: [[0]],
+    vs: [[]],
+    maxPaths: 0,
+    maxPathsSquare: 0,
+    maxPages: 0,
+    curPage: 0,
+}
+
+state.vs = state.vsStart;
+for (let g = 0; g < state.n - 1; g++) {
+    state.vs = generateNext(state.vs);
+}
+state.maxPaths =  Math.floor(state.gridSize / (2 + state.n));
+state.maxPathsSquare = state.maxPaths * state.maxPaths;
+state.maxPages = Math.ceil(state.vs.length / (state.maxPathsSquare));
+
 document.addEventListener('keydown', function(event) {
     if (event.key === "d") {
-        if (curPage < maxPages - 1) {
-            curPage += 1;
+        if (state.curPage < state.maxPages - 1) {
+            state.curPage += 1;
         }
     } else if (event.key === "a") {
-        if (curPage > 0) {
-            curPage -= 1;
+        if (state.curPage > 0) {
+            state.curPage -= 1;
         }
     }
-    draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
-    document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
+    draw(ctx, state.gridSize, state.vs, state.curPage * state.maxPathsSquare);
+    document.getElementById("curpage").textContent = `Page: (${state.curPage + 1} / ${state.maxPages})`;
 });
 
-const pageBtn = document.getElementById("pageBtn");
-pageBtn.addEventListener("click", () => {
+document.getElementById("pageBtn").addEventListener("click", () => {
     const rawInput = document.getElementById("pageInput").value;
     const targetPage = parseInt(rawInput.trim(), 10);
-    if (0 < targetPage && targetPage < maxPages) {
-        curPage = targetPage - 1;
-        draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
-        document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
+    if (0 < targetPage && targetPage < state.maxPages) {
+        state.curPage = targetPage - 1;
+        draw(ctx, state.gridSize, state.vs, state.curPage * state.maxPathsSquare);
+        document.getElementById("curpage").textContent = `Page: (${state.curPage + 1} / ${state.maxPages})`;
         document.getElementById("pageInfo").textContent = `Jumped to page ${targetPage}`;
     } else {
         document.getElementById("pageInfo").textContent = `Outside page bounds`;
     }
 });
 
-const searchBtn = document.getElementById("searchBtn");
-searchBtn.addEventListener("click", () => {
+document.getElementById("searchBtn").addEventListener("click", () => {
     const rawInput = document.getElementById("searchInput").value;
     const finalArray = rawInput.split(',').map(item => parseInt(item.trim(), 10));
     
-    if (finalArray.length == n) {
-        let sIndex = searchByTargetVec(finalArray, vs);
+    if (finalArray.length == state.n) {
+        let sIndex = searchByTargetVec(finalArray, state.vs);
         if (sIndex >= 0) {
             // find correct page and position
-            curPage = Math.floor(sIndex / (maxPaths * maxPaths));
-            let nthPath = sIndex % (maxPaths * maxPaths);
-            let nthPathRow = Math.floor(nthPath / maxPaths);
-            let nthPathCol = nthPath % maxPaths;
+            state.curPage = Math.floor(sIndex / (state.maxPathsSquare));
+            let nthPath = sIndex % (state.maxPathsSquare);
+            let nthPathRow = Math.floor(nthPath / state.maxPaths);
+            let nthPathCol = nthPath % state.maxPaths;
 
             // change to correct page
-            draw(ctx, gridSize, vs, curPage * maxPaths * maxPaths);
-            document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
+            draw(ctx, state.gridSize, state.vs, state.curPage * state.maxPathsSquare);
+            document.getElementById("curpage").textContent = `Page: (${state.curPage + 1} / ${state.maxPages})`;
 
-            drawBox(ctx, canvas.width / gridSize, n, nthPathCol, nthPathRow);
-            document.getElementById("found").textContent = `Sequence found! :D`;
+            drawBox(ctx, canvas.width / state.gridSize, state.n, nthPathCol, nthPathRow);
+            document.getElementById("searchInfo").textContent = `Sequence found! :D`;
         } else {
-            document.getElementById("found").textContent = `Sequence not found... :P`;
+            document.getElementById("searchInfo").textContent = `Sequence not found... :P`;
         }
     } else {
-        document.getElementById("found").textContent = `Sequence should have ${n} numbers`;
+        document.getElementById("searchInfo").textContent = `Sequence should have ${state.n} numbers`;
     }
 });
 
-draw(ctx, gridSize, vs, 0);
-document.getElementById("curpage").textContent = `Page: (${curPage + 1} / ${maxPages})`;
+document.getElementById("nBtn").addEventListener("click", () => {
+    const rawInput = document.getElementById("nInput").value;
+    const newN = parseInt(rawInput.trim(), 10);
+
+    if (newN != state.n) {
+        state = updateStateN(state, newN);
+    }
+    draw(ctx, state.gridSize, state.vs, 0);
+    document.getElementById("curpage").textContent = `Page: (${state.curPage + 1} / ${state.maxPages})`;
+    document.getElementById("nInfo").textContent = `n = ${state.n}`;
+});
+
+draw(ctx, state.gridSize, state.vs, 0);
+document.getElementById("curpage").textContent = `Page: (${state.curPage + 1} / ${state.maxPages})`;
+document.getElementById("nInfo").textContent = `n = ${state.n}`;

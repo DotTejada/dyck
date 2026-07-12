@@ -223,3 +223,16 @@ function draw(ctx, gridSize, vs, vidx) {
     // area of one dyck path (2 + n) * (2 + n)
     document.getElementById("maxpaths").textContent = `Most paths per page: ${maxPaths * maxPaths}`;
 }
+
+function updateStateN(state, n) {
+    state.n = n;
+    state.vs = state.vsStart;
+    for (let g = 0; g < state.n - 1; g++) {
+        state.vs = generateNext(state.vs);
+    }
+    state.maxPaths =  Math.floor(state.gridSize / (2 + state.n));
+    state.maxPathsSquare = state.maxPaths * state.maxPaths;
+    state.maxPages = Math.ceil(state.vs.length / (state.maxPathsSquare));
+    state.curPage = 0;
+    return state;
+}
