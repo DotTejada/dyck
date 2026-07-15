@@ -88,6 +88,18 @@ document.getElementById("nBtn").addEventListener("click", () => {
     document.getElementById("nInfo").textContent = `n = ${state.n}`;
 });
 
+let resizeTimeout;
+window.addEventListener("resize", () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        canvas.width = g.clientWidth;
+        canvas.height = g.clientWidth;
+        draw(ctx, state.gridSize, state.vs, 0);
+        document.getElementById("curpage").textContent = `Page: (${state.curPage + 1} / ${state.maxPages})`;
+        document.getElementById("nInfo").textContent = `n = ${state.n}`;
+    }, 200);
+});
+
 draw(ctx, state.gridSize, state.vs, 0);
 document.getElementById("curpage").textContent = `Page: (${state.curPage + 1} / ${state.maxPages})`;
 document.getElementById("nInfo").textContent = `n = ${state.n}`;
